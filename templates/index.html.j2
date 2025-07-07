@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>ElectSecBib</title>
+  <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+
+    .tooltip {
+      position: relative;
+    }
+
+    .tooltip::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      background-color: #222;
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 4px;
+      top: -2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      font-size: 0.75rem;
+      z-index: 10;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .tooltip:hover::after {
+      opacity: 1;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-900 text-gray-100 p-8 font-sans relative">
+  <div class="max-w-5xl mx-auto">
+
+    <div class="flex flex-col md:flex-row justify-between items-center mb-4">
+      <h1 class="text-4xl font-bold text-purple-300">
+        Election Cybersecurity Bibliography 🗳️
+      </h1>
+      <p class="mt-4 md:mt-0 max-w-md text-gray-300 text-sm md:text-base">
+        This website is a collection of research papers that relate to election security. It is heavily inspired by
+        <a href="https://censorbib.nymity.ch/" target="_blank"
+          class="font-medium text-purple-500 hover:underline">CensorBib</a>.
+        If I have missed any papers (which I probably have!), please submit a
+        <a href="{{ github_url }}" target="_blank" class="font-medium text-purple-500 hover:underline">pull
+          request</a>.
+        Button icons taken from
+        <a href="https://fontawesome.com/" target="_blank"
+          class="font-medium text-purple-500 hover:underline">Font Awesome</a>.
+      </p>
+    </div>
+
+    <p class="text-gray-400 text-sm text-right mb-10">
+      Last updated on
+      <a href="{{ commits_url }}" target="_blank" class="underline hover:text-purple-400">
+        {{ last_updated }}
+      </a>
+    </p>
+
+    {% for year in sorted_years %}
+    <section class="mb-6">
+      <h2 class="text-2xl font-semibold mb-2 text-purple-200 border-b border-gray-700 pb-1">{{ year }}</h2>
+      <ul class="space-y-3">
+        {% for entry in entries_by_year[year] %}
+        <li id="{{ entry.ID }}"
+          class="bg-gray-800 p-3 rounded-2xl shadow-md shadow-black/30 hover:shadow-lg hover:shadow-purple-500/20 transition duration-200">
+          <div class="flex md:flex-row flex-col gap-4">
+
+            <div class="flex-1">
+              <div class="text-lg font-semibold text-white">{{ entry.title }}</div>
+              <div class="text-sm text-gray-300">{{ entry.author }}</div>
+              {% if entry.booktitle and entry.publisher and entry.year %}
+                <div class="italic text-gray-300 text-sm">{{ entry.booktitle }}, {{ entry.year }}, {{ entry.publisher }}</div>
+              {% elif entry.booktitle and entry.year %}
+                <div class="italic text-gray-300 text-sm">{{ entry.booktitle }}, {{ entry.year }}</div>
+              {% elif entry.howpublished %}
+                <div class="italic text-gray-300 text-sm">{{ entry.howpublished }}</div>
+              {% endif %}
+            </div>
+
+            <div class="flex flex-row gap-2 justify-center items-center md:w-auto w-full">
+              {% if entry.url %}
+              <a href="{{ entry.url }}" target="_blank"
+                class="tooltip w-10 h-10 p-2 flex items-center justify-center rounded-md text-white bg-purple-500 hover:bg-purple-600 transition"
+                data-tooltip="View paper">
+                <!-- Document Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-full h-full" fill="currentColor"
+                  stroke="none">
+                  <path
+                    d="M0 64C0 28.7 28.7 0 64 0L224 0l0 128c0 17.7 14.3 32 32 32l128 0 0 144-208 0c-35.3 0-64 28.7-64 64l0 144-48 0c-35.3 0-64-28.7-64-64L0 64zm384 64l-128 0L256 0 384 128zM176 352l32 0c30.9 0 56 25.1 56 56s-25.1 56-56 56l-16 0 0 32c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-48 0-80c0-8.8 7.2-16 16-16zm32 80c13.3 0 24-10.7 24-24s-10.7-24-24-24l-16 0 0 48 16 0zm96-80l32 0c26.5 0 48 21.5 48 48l0 64c0 26.5-21.5 48-48 48l-32 0c-8.8 0-16-7.2-16-16l0-128c0-8.8 7.2-16 16-16zm32 128c8.8 0 16-7.2 16-16l0-64c0-8.8-7.2-16-16-16l-16 0 0 96 16 0zm80-112c0-8.8 7.2-16 16-16l48 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-32 0 0 32 32 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-32 0 0 48c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-64 0-64z" />
+                </svg>
+              </a>
+              {% endif %}
+
+              {% if entry.cached_url %}
+              <a href="{{ entry.cached_url }}" target="_blank"
+                class="tooltip w-10 h-10 p-2 flex items-center justify-center rounded-md text-white bg-purple-500 hover:bg-purple-600 transition"
+                data-tooltip="View cached version">
+                <!-- Download Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-full h-full" fill="currentColor">
+                  <path
+                    d="M32 32h448c17.7 0 32 14.3 32 32v32c0 17.7-14.3 32-32 32H32C14.3 128 0 113.7 0 96V64C0 46.3 14.3 32 32 32zm0 128h448v256c0 35.3-28.7 64-64 64H96c-35.3 0-64-28.7-64-64V160zm128 80c0 8.8 7.2 16 16 16h160c8.8 0 16-7.2 16-16s-7.2-16-16-16H176c-8.8 0-16 7.2-16 16z" />
+                </svg>
+              </a>
+              {% endif %}
+
+              <button onclick="document.getElementById('bibtex-{{ entry.ID }}').classList.toggle('hidden')"
+                class="tooltip w-10 h-10 p-2 flex items-center justify-center rounded-md bg-purple-500 hover:bg-purple-600 text-white transition"
+                data-tooltip="Toggle BibTeX">
+                <!-- Code Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-full h-full" fill="currentColor">
+                  <path
+                    d="M0 216C0 149.7 53.7 96 120 96h8c17.7 0 32 14.3 32 32s-14.3 32-32 32h-8c-30.9 0-56 25.1-56 56v8h64c35.3 0 64 28.7 64 64v64c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64v-32-32-72zm256 0c0-66.3 53.7-120 120-120h8c17.7 0 32 14.3 32 32s-14.3 32-32 32h-8c-30.9 0-56 25.1-56 56v8h64c35.3 0 64 28.7 64 64v64c0 35.3-28.7 64-64 64h-64c-35.3 0-64-28.7-64-64v-32-32-72z" />
+                </svg>
+              </button>
+
+              <a href="#{{ entry.ID }}"
+                class="tooltip w-10 h-10 p-2 flex items-center justify-center rounded-md text-white bg-purple-500 hover:bg-purple-600 transition"
+                data-tooltip="Link to this entry" onclick="
+                  event.preventDefault();
+                  card = document.getElementById('{{ entry.ID }}');
+                  if(card) {
+                    card.classList.add('ring-4', 'ring-purple-400');
+                    setTimeout(() => card.classList.remove('ring-4', 'ring-purple-400'), 1200);
+                  }
+                  url = window.location.origin + window.location.pathname + '#{{ entry.ID }}';
+                  navigator.clipboard.writeText(url);
+                  window.location.hash = '{{ entry.ID }}';
+                ">
+                <!-- Link Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" class="w-full h-full" fill="currentColor">
+                  <path
+                    d="M579.8 267.7c56.5-56.5 56.5-148 0-204.5-50-50-128.8-56.5-186.3-15.4l-1.6 1.1c-14.4 10.3-17.7 30.3-7.4 44.6s30.3 17.7 44.6 7.4l1.6-1.1c32.1-22.9 76-19.3 103.8 8.6 31.5 31.5 31.5 82.5 0 114L422.3 334.8c-31.5 31.5-82.5 31.5-114 0-27.9-27.9-31.5-71.8-8.6-103.8l1.1-1.6c10.3-14.4 6.9-34.4-7.4-44.6s-34.4-6.9-44.6 7.4l-1.1 1.6C206.5 251.2 213 330 263 380c56.5 56.5 148 56.5 204.5 0l112.3-112.3zM60.2 244.3C3.7 300.8 3.7 392.3 60.2 448.8c50 50 128.8 56.5 186.3 15.4l1.6-1.1c14.4-10.3 17.7-30.3 7.4-44.6s-30.3-17.7-44.6-7.4l-1.6 1.1c-32.1 22.9-76 19.3-103.8-8.6-31.5-31.5-31.5-82.5 0-114L217.7 177.2c31.5-31.5 82.5-31.5 114 0 27.9 27.9 31.5 71.8 8.6 103.9l-1.1 1.6c-10.3 14.4-6.9 34.4 7.4 44.6s34.4 6.9 44.6-7.4l1.1-1.6C433.5 260.8 427 182 377 132c-56.5-56.5-148-56.5-204.5 0L60.2 244.3z" />
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          <div class="relative">
+            <pre id="bibtex-{{ entry.ID }}"
+              class="hidden bg-gray-900 text-green-300 text-sm mt-4 p-4 rounded-md overflow-x-auto border border-purple-500">{{entry.bibtex}}</pre>
+            <button onclick="copyBibtex('{{ entry.ID }}')"
+              class="hidden absolute bottom-2 right-2 bg-purple-600 text-white px-2 py-1 text-xs rounded hover:bg-purple-700 transition"
+              id="copy-btn-{{ entry.ID }}">
+              Copy
+            </button>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    </section>
+    {% endfor %}
+  </div>
+
+  <script>
+    function copyBibtex(id) {
+      const bibtexElement = document.getElementById(`bibtex-${id}`);
+      const button = document.getElementById(`copy-btn-${id}`);
+      if (!bibtexElement) return;
+
+      const text = bibtexElement.textContent;
+
+      navigator.clipboard.writeText(text).then(() => {
+        button.textContent = "Copied!";
+        setTimeout(() => {
+          button.textContent = "Copy";
+        }, 2000);
+      }).catch(err => {
+        console.error('Failed to copy text: ', err);
+      });
+    }
+
+    document.querySelectorAll('button[onclick^="document.getElementById"]').forEach(toggleBtn => {
+      toggleBtn.addEventListener('click', () => {
+        setTimeout(() => {
+          document.querySelectorAll('pre[id^="bibtex-"]').forEach(pre => {
+            const id = pre.id.replace('bibtex-', '');
+            const copyBtn = document.getElementById(`copy-btn-${id}`);
+            copyBtn.classList.toggle('hidden', pre.classList.contains('hidden'));
+          });
+        }, 100);
+      });
+    });
+  </script>
+</body>
+
+</html>
